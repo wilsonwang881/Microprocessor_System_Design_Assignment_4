@@ -31,6 +31,7 @@
     keywordstyle=\color{vblue},
     identifierstyle=\color{black},
     commentstyle=\color{vgreen},
+    breaklines=true,
     % numbers=left,
     numberstyle=\tiny\color{black},
     numbersep=11pt,
@@ -42,6 +43,7 @@
 \lstdefinestyle{txt-style}
 {
     basicstyle=\small\ttfamily,
+    breaklines=true,
     % numbers=left,
     numbersep=11pt,
     tabsize=4,
@@ -155,7 +157,7 @@ The assignment aims at teaching students to boot Ubuntu in a virtual machine env
 
 \part{Procedure}
 
-\section{Boot Ubuntu and Compile Linux-4.20.17}
+\section{Boot Ubuntu}
 
 \begin{enumerate}
     
@@ -190,24 +192,211 @@ The assignment aims at teaching students to boot Ubuntu in a virtual machine env
     
     \item Allocate a space of 30 GB. Click on \textbf{Create}. Wait for VirtualBox to finish executing.
     
-    \item Select the virtual machine from the list. Open the settings. Go to \textbf{System} $\rightarrow$ \textbf{Processor}. Increase the processor count to 4. Go to \textbf{Display} $\rightarrow$ \textbf{Screen}, increase \textbf{Video Memory} to 128 MB. Click \textbf{OK} to close the window.
+    \item Select the virtual machine from the list. Open the settings. Go to \textbf{System} $\rightarrow$ \textbf{Processor}. Increase the processor count to 4 (adjust accordingly based on CPU specifications). Go to \textbf{Display} $\rightarrow$ \textbf{Screen}, increase \textbf{Video Memory} to 128 MB. Click \textbf{OK} to close the window.
     
-    \item Click o \textbf{Start}. Select the downloaded Ubuntu ISO image as the start-up disk. Click on \textbf{Start}. Follow the on-screen prompts to install Ubuntu.
+    \item Click on \textbf{Start}. Select the downloaded Ubuntu ISO image as the start-up disk. Click on \textbf{Start}. Follow the on-screen prompts to install Ubuntu. A virtual machine restart is needed to finish the installation.
     
+    \item Adjust the resolution if needed.
+    
+    \item In Ubuntu virtual machine, open a terminal and run the following command one by one:
+    
+    \begin{table}[ht]
+    \begin{tabular}{l}
+    \toprule
+    \texttt{sudo apt-get update}                                                                  \\ \midrule
+    \texttt{sudo apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc} \\ \midrule
+    \texttt{sudo apt-get install vim}                                                             \\ \midrule
+    \texttt{sudo apt-get install vim-gtk3}                                                        \\ \midrule
+    \texttt{sudo apt-get install make}                                                            \\ \midrule
+    \texttt{sudo apt-get install gcc}                                                             \\ \midrule
+    \texttt{sudo apt-get install bison}                                                           \\ \midrule
+    \texttt{sudo apt-get install flex}                                                            \\ \midrule
+    \texttt{sudo apt-get install libelf-dev}                                                      \\ \bottomrule           
+    \end{tabular}
+    \caption{Commands to setup the Linux development environment}
+    \end{table}
+    
+\end{enumerate}
+
+\section{Compile Linux-4.20.17}
+
+\begin{enumerate}
+    
+    \item Open a terminal. Download the Linux zip file by running:
+    
+    \texttt{wget https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.20.17.tar.gz}
+    
+    \item Unzip the file by running:
+    
+    \texttt{tar xf linux-4.20.17.tar.gz}
+    
+    \item Change to the unzipped Linux directory by running:
+    
+    \texttt{cd linux-4.20.17}
+    
+    \item Load the kernel compilation configuration by running:
+    
+    \texttt{make ARCH=x86 menuconfig}
+    
+    \item Remove \textbf{multimedia} and \textbf{soundcard} inside the \textbf{Device Driver} category. Move the cursor to the corresponding entry and press the space key until the entry starts as $<>$. Save the configurations and exit to the terminal.
+    
+    \item Compile and install Linux-4.20.17 by running (note the last number in each command represents the number of CPU cores allocated to the virtual machine):
+    
+    \texttt{sudo make ARCH=x86 -j 4}
+    
+    \texttt{sudo make ARCH=x86 modules\_install -j 4}
+    
+    \texttt{sudo make ARCH=x86 install -j 4}
     
 \end{enumerate}
 
 \section{Create the Kernel Module}
 
-\section{Boot Linux in VirtualBox}
+\begin{enumerate}
+    
+    \item Open a new terminal. Create a directory named \textbf{multiplier} by running:
+    
+    \texttt{mkdir multiplier}
+    
+    \item In the directory, create the following files: \texttt{Makefile}, \texttt{multiplier.h}, \texttt{multiplier.c}, \texttt{devtest.c}. Copy the content from the appendix into the corresponding files.
+    
+    \item Compile the \textbf{multiplier} module by running:
+    
+    \texttt{make}
+    
+    \item Compile the test program \textbf{devtest.c} by running:
+    
+    \texttt{gcc devtest.c -o devtest}
+    
+\end{enumerate}
+
+\section{Boot the Compiled Linux in VirtualBox}
+
+\begin{enumerate}
+    
+    \item In Ubuntu, reboot the system. Hold the shift key.
+    
+    \item The GRUB bootloader menu should show up. Select \textbf{Advanced options for Ubuntu} $\rightarrow$ \textbf{Ubuntu, with Linux 4.20.17}
+    
+    \item Check the Linux version by running:
+    
+    \texttt{uname -r}
+    
+\end{enumerate}
 
 \section{Insert the Kernel Module after Booting Linux}
 
-\section{Built-in Kernel Module Test}
+\begin{enumerate}
+    
+    \item Open a terminal and change to the directory to the one that contains the compiled kernel module. Install the module by running:
+    
+    \texttt{sudo insmod multiplier.ko}
+    
+    \item Confirm the \textbf{multiplier} module is installed by checking the output after running:
+    
+    \texttt{lsmod | grep multiplier}
+    
+    \item Check the output when installing the module by running:
+    
+    \texttt{dmesg | tail}
+    
+    \item Create the device file by running (replace 240 with the major number indicated in the previous console output): 
+    
+    \texttt{sudo mknod /dev/multiplier c 240 0}
+    
+    \item Change the permission of the device file by running:
+    
+    \texttt{sudo chmod 666 /dev/multiplier}
+    
+    \item Run the device driver test:
+    
+    \texttt{./devtest}
+    
+    \item Remove the \textbf{multiplier} module and check whether it has been removed:
+    
+    \texttt{sudo rm /dev/multiplier} 
+    
+    \texttt{sudo rmmod multiplier}
+    
+    \texttt{lsmod | grep multiplier}
+    
+\end{enumerate}
+
+\section{Built-in Kernel Module and Test}
+
+\begin{enumerate}
+    
+    \item Boot into the default Ubuntu version, not the compiled 4.20.17 Linux version.
+    
+    \item In the \textbf{driver} directory located in the unzipped Linux directory, create a new directory called \textbf{multiplier\_module}. Place \texttt{multiplier.c} and \texttt{multiplier.h} in the created directory.
+    
+    \item In the same directory, create a file \texttt{Makefile} with the following content:
+    
+    \texttt{obj-\$(CONFIG\_MULTIPLIER\_DRIVER) += multiplier.o}
+    
+    \item In the same directory, create a file \texttt{Kconfig} file with the following content:
+    
+    \texttt{config MULTIPLIER\_DRIVER}
+    
+    \texttt{tristate "multiplier\_driver"}
+    
+    \texttt{depends on X86}
+    
+    \texttt{default y if X86}
+    
+    \texttt{help}
+    
+    \texttt{ refer to ECEN449@TAMU}
+    
+    \item Add the following lines to \texttt{Makefile} in the \textbf{driver} directory:
+    
+    \texttt{\# ECEN 449}
+    
+    \texttt{obj-\$(CONFIG\_MULTIPLIER\_DRIVER) += multiplier\_driver/}
+    
+    \item Add the following line before ``\texttt{endmenu}'' in \texttt{Kconfig} in the \textbf{driver} directory:
+    
+    \texttt{source "drivers/multiplier\_driver/Kconfig"}
+    
+    \item In the Linux directory, run:
+    
+    \texttt{make ARCH=x86 menuconfig}
+    
+    \item In the compilation configuration menu, go to \textbf{Device Driver} $\rightarrow$ \textbf{multiplier\_driver}. Press the space key until the \textbf{multiplier\_driver} entry starts with $<*>$.
+    
+    \item Now the multiplier module has been added to the compilation configuration. Re-compile and install the new kernel by running:
+    
+    \texttt{sudo make clean}
+    
+    \texttt{sudo make ARCH=x86 -j 4}
+    
+    \texttt{sudo make ARCH=x86 modules\_install -j 4}
+    
+    \texttt{sudo make ARCH=x86 install -j 4}
+    
+    \item Reboot the Ubuntu virtual machine and select the re-compiled kernel from the GRUB menu.
+    
+    \item Check the loading information and the major number by running:
+    
+    \texttt{dmesg | grep multiplier}
+    
+    \item Create the device file and change its permission by running:
+    
+    \texttt{sudo mknod /dev/multiplier c <Major Number> 0}
+    
+    \texttt{sudo chmod 666 /dev/multiplier}
+    
+    \item Run the device driver test.
+    
+\end{enumerate}
 
 \newpage
 
 \part{Results}
+
+\section{Compilation of Linux 4.20.17}
+
+\section{}
 
 \newpage
 
@@ -226,6 +415,22 @@ A:
 \newpage
 
 \begin{appendices}
+
+\section{Makefile}
+\label{appendix:makefile}
+\lstinputlisting[style={txt-style}]{Makefile}
+
+\section{multiplier.h}
+\label{appendix:sourcecode_multiplier_header}
+\lstinputlisting[style={txt-style}]{multiplier.h}
+
+\section{multiplier.c}
+\label{appendix:sourcecode_multiplier}
+\lstinputlisting[style={txt-style}]{multiplier.c}
+
+\section{devtest.c}
+\label{appendix:sourcecode_devtest}
+\lstinputlisting[style={txt-style}]{devtest.c}
 
 \end{appendices}
 
