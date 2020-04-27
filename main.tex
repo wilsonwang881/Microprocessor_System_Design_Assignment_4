@@ -396,21 +396,158 @@ The assignment aims at teaching students to boot Ubuntu in a virtual machine env
 
 \section{Compilation of Linux 4.20.17}
 
-\section{}
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=0.7\textwidth]{1.compiling environment.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=0.7\textwidth]{2.compiling result.png}
+    \end{subfigure}
+    \caption{Compile and install the compiled Linux kernel.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.39\textwidth}
+    \includegraphics[width=0.73\textwidth]{3.install 1.png}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.60\textwidth}
+    \includegraphics[width=0.73\textwidth]{4.install 2.png}
+    \end{subfigure}
+    \caption{Install the compiled Linux kernel.}
+\end{figure}
+
+\newpage
+
+\section{Loading the Kernel Module and Device Driver Test}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{6.new linux environment.png}
+    \caption{New Linux environment.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{7.insmod.png}
+    \caption{Install the kernel module.}
+\end{figure}
+
+\newpage
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.32\textwidth]{8.devtest 1.png}
+    \includegraphics[width=0.32\textwidth]{9.devtest 2.png}
+    \includegraphics[width=0.32\textwidth]{10.devtest 3.png}
+    \caption{Install the compiled Linux kernel.}
+\end{figure}
+
+\section{Adding the Kernel Module before Compiling Linux}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{11.menuconfig multiplier driver.png}
+    \caption{Menu configuration for including the multiplier before compiling Linux.}
+\end{figure}
+
+\newpage
+
+\section{Device Driver Test with Built-in Module}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.65\textwidth]{12.recompiled Linux.png}
+    \caption{Linux re-compiled with multiplier module built-in.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.65\textwidth]{13.built-in multiplier.png}
+    \caption{Linux re-compiled with multiplier module built-in.}
+\end{figure}
+
+\newpage
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.65\textwidth]{14.multiplier dmesg.png}
+    \caption{dmesg showing the kernel module loaded at boot time.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.45\textwidth]{15.recompiled devtest.png}
+    \includegraphics[width=0.45\textwidth]{15.recompiled devtest.png}
+    \caption{Running device driver test with multiplier module built-in.}
+\end{figure}
+
+
 
 \newpage
 
 \part{Conclusion}
 
+The compiled Linux kernel with or without the multiplier built-in all have the size of 8,603,520 bytes. One explanation may be the compiler optimizes the kernel size. Or the multiplier module may be too small to be significant compared with the whole Linux kernel.
+
 \textbf{Q: What are the advantages and disadvantages of both the loadable kernel modules and
 built-in module approach?}
 
-A:
+A: Advantage of loadable kernel modules:
+
+\begin{enumerate}
+    
+    \item The kernel module can be easily re-compiled after modification.
+    
+    \item Can reduce the size of the Linux kernel.
+    
+    \item Can easily add or remove the module if needed. No need to re-compile the whole Linux kernel which requires a lot of time.
+    
+\end{enumerate}
+
+Disadvantage of loadable kernel modules:
+
+\begin{enumerate}
+    
+    \item Need additional configuration on the base Linux kernel if the module is needed.
+    
+    \item Loading a new kernel module may conflict with other modules or have compatibility issues.
+    
+    \item Being hot-loadable may reduce the performance: compile the Linux kernel with module built-in may enable the compiler to do some optimization that increases the performance. Being hot-loadable may cause some compromise between performance and flexibility.
+    
+\end{enumerate}
+
+Advantage of built-in modules:
+
+\begin{enumerate}
+    
+    \item Need no extra configuration. The kernel is ready to use out of the box.
+    
+    \item Will not cause compatibility issues: a well-tested Linux kernel will undergo thorough tests to eliminate any chance of interference between modules.
+    
+    \item Compiler may optimize the module performance or the size taken in the kernel.
+    
+\end{enumerate}
+
+Disadvantage of built-in modules:
+
+\begin{enumerate}
+    
+    \item Size of the Linux kernel increases. Depends on the size of the module, may cause significant extra time in distributing the Linux kernel, i.e. downloading the kernel from a FTP site.
+    
+    \item May need to re-compile the whole Linux kernel if the module undergoes upgrade or bug-fix that can take a long time.
+    
+\end{enumerate}
+
+\newpage
 
 \textbf{Q: Describe both one good thing and one thing that can be improved about your experience
 in the labs this semester.}
 
-A: 
+A: One good thing: the progressive learning curve presented across the different lab sessions is great. Students learn from the most basic and the easiest and move to the more difficult problem. Some labs are connected so students will not forget those lab sessions after submitting the lab reports.
+
+One thing that can be improved: can have bonus parts in each lab. Such bonus parts need not to count towards the final grade. Students who finish their labs early or are truly interested in areas like FPGA or digital design may be interested in doing such bonus parts to enhance the communication with the instructor and expand their knowledge if they have any plans about the related areas in the future.
 
 \newpage
 
